@@ -1,0 +1,21 @@
+# CMake generation dependency list for this directory.
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.24/Modules/BasicConfigVersion-SameMajorVersion.cmake.in
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.24/Modules/CMakePackageConfigHelpers.cmake
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.24/Modules/CheckCXXSourceCompiles.cmake
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.24/Modules/CheckFunctionExists.c
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.24/Modules/CheckIncludeFileCXX.cmake
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.24/Modules/CheckLibraryExists.cmake
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.24/Modules/FindDoxygen.cmake
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.24/Modules/FindPackageHandleStandardArgs.cmake
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.24/Modules/FindPackageMessage.cmake
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.24/Modules/FindThreads.cmake
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.24/Modules/GNUInstallDirs.cmake
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.24/Modules/WriteBasicConfigVersionFile.cmake
+C:/Users/imwhi/OneDrive/Desktop/Chess-Game-CPP/.cs211/lib/ge211/CMakeLists.txt
+C:/Users/imwhi/OneDrive/Desktop/Chess-Game-CPP/.cs211/lib/ge211/cmake/FindSDL2.cmake
+C:/Users/imwhi/OneDrive/Desktop/Chess-Game-CPP/.cs211/lib/ge211/cmake/FindSDL2_image.cmake
+C:/Users/imwhi/OneDrive/Desktop/Chess-Game-CPP/.cs211/lib/ge211/cmake/FindSDL2_mixer.cmake
+C:/Users/imwhi/OneDrive/Desktop/Chess-Game-CPP/.cs211/lib/ge211/cmake/FindSDL2_ttf.cmake
+C:/Users/imwhi/OneDrive/Desktop/Chess-Game-CPP/.cs211/lib/ge211/cmake/Ge211Installer.cmake
+C:/Users/imwhi/OneDrive/Desktop/Chess-Game-CPP/.cs211/lib/ge211/include/ge211_version.hxx.in
+C:/Users/imwhi/OneDrive/Desktop/Chess-Game-CPP/CMakeFiles/CheckLibraryExists/CheckFunctionExists.cxx

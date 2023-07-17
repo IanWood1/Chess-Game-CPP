@@ -31,6 +31,8 @@ Img_session::Img_session()
 {
     int img_flags = IMG_INIT_JPG | IMG_INIT_PNG;
     if (IMG_Init(img_flags) != img_flags) {
+        // TODO: idk whats going on
+        return;
         fatal_sdl() << "Could not initialize image loading support";
         exit(1);
     }

@@ -1,6 +1,5 @@
 
 #include "view.hxx"
-#include <unistd.h>
 #include <map>
 
 static ge211::Color const grey {140,140,140};

@@ -1,7 +1,0 @@
-"C:\Program Files\JetBrains\CLion 2021.2.3\bin\cmake\win\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_DEPENDS_USE_COMPILER=FALSE -G "CodeBlocks - MinGW Makefiles" "C:\Users\imwhi\OneDrive\School\NORTHWESTERN SOPHMORE\Quarter 1\CS 211\final_project_v2"
--- Using vendored Catch2 library (C:/Users/imwhi/OneDrive/School/NORTHWESTERN SOPHMORE/Quarter 1/CS 211/final_project_v2/.cs211/lib/catch)
--- Using vendored Ge211 library (C:/Users/imwhi/OneDrive/School/NORTHWESTERN SOPHMORE/Quarter 1/CS 211/final_project_v2/.cs211/lib/ge211)
--- Could NOT find Doxygen (missing: DOXYGEN_EXECUTABLE) 
--- Configuring done
--- Generating done
--- Build files have been written to: C:/Users/imwhi/OneDrive/School/NORTHWESTERN SOPHMORE/Quarter 1/CS 211/final_project_v2/cmake-build-debug

@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.3)
 
-
 set(GAME_EXE chess)
 
 project(${GAME_EXE} CXX)

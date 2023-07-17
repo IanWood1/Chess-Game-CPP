@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\imwhi\OneDrive\Desktop\Chess-Game-CPP\.cs211\lib\ge211\src\ge211_base.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\imwhi\OneDrive\Desktop\Chess-Game-CPP\.cs211\lib\ge211\src\ge211_color.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\imwhi\OneDrive\Desktop\Chess-Game-CPP\.cs211\lib\ge211\src\ge211_engine.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\imwhi\OneDrive\Desktop\Chess-Game-CPP\.cs211\lib\ge211\src\ge211_event.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\imwhi\OneDrive\Desktop\Chess-Game-CPP\.cs211\lib\ge211\src\ge211_error.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\imwhi\OneDrive\Desktop\Chess-Game-CPP\.cs211\lib\ge211\src\ge211_geometry.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\imwhi\OneDrive\Desktop\Chess-Game-CPP\.cs211\lib\ge211\src\ge211_audio.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\imwhi\OneDrive\Desktop\Chess-Game-CPP\.cs211\lib\ge211\src\ge211_random.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\imwhi\OneDrive\Desktop\Chess-Game-CPP\.cs211\lib\ge211\src\ge211_render.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\imwhi\OneDrive\Desktop\Chess-Game-CPP\.cs211\lib\ge211\src\ge211_resource.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\imwhi\OneDrive\Desktop\Chess-Game-CPP\.cs211\lib\ge211\src\ge211_session.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\imwhi\OneDrive\Desktop\Chess-Game-CPP\.cs211\lib\ge211\src\ge211_sprites.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\imwhi\OneDrive\Desktop\Chess-Game-CPP\.cs211\lib\ge211\src\ge211_window.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\imwhi\OneDrive\Desktop\Chess-Game-CPP\.cs211\lib\ge211\src\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{36AC6DF9-F998-39C3-BF9E-31A5225A5730}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

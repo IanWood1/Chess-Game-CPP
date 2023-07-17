@@ -240,8 +240,8 @@ Model::get_valid_moves()
     {
         return moves;
     }
-    for (std::vector<Move>::iterator i = moves.end() - 1;
-        i >= moves.begin(); i--)
+    for (std::vector<Move>::iterator i = moves.begin();
+        i != moves.end();)
     {
         make_move(*i);
         if (turn_ == 'w'){
@@ -252,7 +252,9 @@ Model::get_valid_moves()
 
         if (in_check())
         {
-            moves.erase(i);
+            i = moves.erase(i);
+        }else {
+            i++;
         }
 
         if (turn_ == 'w'){

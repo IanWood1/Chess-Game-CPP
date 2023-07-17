@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\imwhi\OneDrive\Desktop\Chess-Game-CPP\.cs211\lib\catch\src\catch.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\imwhi\OneDrive\Desktop\Chess-Game-CPP\.cs211\lib\catch\include\catch.hxx">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\imwhi\OneDrive\Desktop\Chess-Game-CPP\.cs211\lib\catch\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{BA5DE7EA-2E8C-3E59-A7D9-6D8A960E106B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{36AC6DF9-F998-39C3-BF9E-31A5225A5730}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
