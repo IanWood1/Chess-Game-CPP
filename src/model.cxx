@@ -835,6 +835,47 @@ Model::score_the_board() const
     return score;
 }
 
+int
+square_score(char piece)
+{
+    if (piece == 'K') {
+        return 0;
+    }
+    else if (piece == 'Q') {
+        return 90;
+    }
+    else if (piece == 'R') {
+        return 50;
+    }
+    else if (piece == 'B') {
+        return 30;
+    }
+    else if (piece == 'N') {
+        return 30;
+    }
+    else if (piece == 'p') {
+        return 10;
+    }
+}
+
+inline bool compare (const Move& first, const Move& other) {
+    // used to determine the "strength" of a given move
+    const int myCaptureScore = square_score(first.piece_captured[2]);
+    const int otherCaptureScore = square_score(other.piece_captured[2]);
+    if (myCaptureScore != otherCaptureScore) {
+        return myCaptureScore > otherCaptureScore;
+    }
+    const int myForwardMovement = first.end.row - first.start.row;
+    const int otherForwardMovement = other.end.row - other.start.row;
+    if (myForwardMovement != otherForwardMovement) {
+        return myForwardMovement > otherForwardMovement;
+    }
+
+    // deterministic else case
+    return &first < &other;
+}
+
+
 
 void
 Model::best_move()
@@ -853,6 +894,7 @@ Model::best_move()
         turn_multi = -1;
     }
     std::vector<Move> valid_moves = get_valid_moves();
+    std::sort(valid_moves.begin(), valid_moves.end(), compare);
     best_move_ = valid_moves.at(0);
 
     best_move_helper(valid_moves,

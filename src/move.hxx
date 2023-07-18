@@ -6,17 +6,6 @@ struct loc
 {
     int row;
     int col;
-
-    loc add(int r, int c)
-    {
-        return loc {row + r, col + c};
-    }
-
-    bool eql(loc other)
-    {
-        return row == other.row && col == other.col;
-    }
-
 };
 using board_array_t = std::array<std::array<std::string,8>,8>;
 
