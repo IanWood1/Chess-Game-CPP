@@ -4,7 +4,7 @@
 #include "move.hxx"
 
 // define "move" class
-Move::Move(loc start, loc end, board_array_t board)
+Move::Move(loc start, loc end, board_array_t& board)
         :start(start),
          end(end),
          piece_moved(board[start.row][start.col]),
@@ -15,7 +15,7 @@ Move::Move(loc start, loc end, board_array_t board)
     is_promote = (piece_moved == "wp" && end.row == 0) ||
                  (piece_moved == "bp" && end.row == 7);
 }
-Move::Move(loc start, loc end, board_array_t board, bool enpassant, bool castle)
+Move::Move(loc start, loc end, board_array_t& board, bool enpassant, bool castle)
         :start(start),
          end(end),
          piece_moved(board[start.row][start.col]),

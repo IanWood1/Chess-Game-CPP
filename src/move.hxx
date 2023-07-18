@@ -26,9 +26,9 @@ class Model;
 class Move
 {
 public:
-    Move(loc start, loc end, board_array_t board);
+    Move(loc start, loc end, board_array_t& board);
 
-    Move(loc start, loc end, board_array_t board, bool enpassant, bool castle);
+    Move(loc start, loc end, board_array_t& board, bool enpassant, bool castle);
 
     loc start;
     loc end;

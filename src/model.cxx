@@ -25,9 +25,9 @@ Model::Model(std::array<std::array<std::string, 8>, 8> input_board)
 void
 Model::print_board() const
 {
-    for (auto row : board_)
+    for (auto& row : board_)
     {
-        for (auto piece : row)
+        for (auto& piece : row)
         {
             std::cout << piece << " ";
         }
@@ -39,10 +39,10 @@ void
 Model::print_board_array() const
 {
     std::cout << "std::array<std::array<std::string,8>,8>{\n";
-    for (auto row : board_)
+    for (auto& row : board_)
     {
         std::cout << "std::array<std::string,8>{";
-        for (auto piece : row)
+        for (auto& piece : row)
         {
             std::cout << "\"" << piece << "\", ";
         }
@@ -52,7 +52,7 @@ Model::print_board_array() const
 }
 
 void
-Model::make_move(Move move)
+Model::make_move(const Move& move)
 {
     board_[move.start.row][move.start.col] = "--";
     board_[move.end.row][move.end.col] = move.piece_moved;
@@ -279,9 +279,9 @@ Model::get_valid_moves()
         {
             checkmate_ = false;
             stalemate_ = true;
-            for (auto row : board_)
+            for (auto& row : board_)
             {
-                for (auto piece : row)
+                for (auto& piece : row)
                 {
                     if (piece[1] != '-'
                         && piece[1] != 'K')
@@ -304,7 +304,11 @@ Model::get_valid_moves()
 std::vector<Move>
 Model::get_all_moves()
 {
-    std::vector<Move> moves{};
+    std::vector<Move> moves;
+
+    // branching factor of 35 seems reasonable
+    // https://chess.stackexchange.com/questions/23135/what-is-the-average-number-of-legal-moves-per-turn
+    moves.reserve(35);
 
     for (int row = 0; row < 8; row ++)
     {
@@ -555,7 +559,7 @@ Model::knight_moves(int row, int col, std::vector<Move>& moves)
     if (turn_ == 'b'){
         curr_color = 'b';
     }
-    for (auto direction : directions)
+    for (auto& direction : directions)
     {
         int end_row = row + direction.row;
         int end_col = col + direction.col;
@@ -584,7 +588,7 @@ Model::bishop_moves(int row, int col, std::vector<Move>& moves)
     if (turn_ == 'w'){
         other_color = 'b';
     }
-    for (auto direction : directions)
+    for (auto& direction : directions)
     {
         for (int i = 1; i < 8; i++)
         {
@@ -628,7 +632,7 @@ Model::rook_moves(int row, int col, std::vector<Move>& moves)
     if (turn_ == 'w'){
         other_color = 'b';
     }
-    for (auto direction : directions)
+    for (auto& direction : directions)
     {
         for (int i = 1; i < 8; i++)
         {
@@ -680,7 +684,7 @@ Model::king_moves(int row, int col, std::vector<Move>& moves)
     if (turn_ == 'b'){
         curr_color = 'b';
     }
-    for (auto direction : directions)
+    for (auto& direction : directions)
     {
         int end_row = row + direction.row;
         int end_col = col + direction.col;
@@ -788,8 +792,10 @@ Model::score_the_board() const
             std::string piece = board_[r][c];
             if (piece[0] == 'w')
             {
+                // value of piece
                 score += piece_score(piece[1]);
 
+                // value of position of the piece
                 if (piece[1] == 'p')
                 {
                     score += pawn_loc_scores[r][c];
@@ -857,7 +863,7 @@ Model::best_move()
 }
 
 int
-Model::best_move_helper(std::vector<Move> valid_moves,
+Model::best_move_helper(const std::vector<Move>& valid_moves,
                         int depth,
                         int alpha,
                         int beta,
@@ -873,7 +879,7 @@ Model::best_move_helper(std::vector<Move> valid_moves,
         return 0;
     }
     int max_score = -10000;
-    for (auto move : valid_moves)
+    for (auto& move : valid_moves)
     {
         make_move(move);
         std::vector<Move> next_moves = get_valid_moves();

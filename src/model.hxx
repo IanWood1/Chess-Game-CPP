@@ -46,10 +46,11 @@ public:
     char winner() const
     {return winner_;}
 
-    std::array<std::array<std::string,8>,8> board() const
-    {return board_;}
+    board_array_t& board() { return board_; }
+    const board_array_t& board() const { return board_; }
 
-    void make_move(Move mv);
+
+    void make_move(const Move& mv);
 
     std::vector<Move> get_valid_moves();
 
@@ -161,7 +162,7 @@ private:
 
     int
     best_move_helper(
-            std::vector<Move> valid_moves,
+            const std::vector<Move>& valid_moves,
             int depth,
             int alpha,
             int beta,
