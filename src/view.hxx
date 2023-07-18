@@ -60,6 +60,12 @@ private:
     ge211::Posn<int> board_to_screen(ge211::Posn<int>);
 
 
+    std::thread aiThread_;
+    Model aiBoard_;
+    bool aiThreadReady_;
+	
+
+
 
 };
 

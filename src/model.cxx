@@ -356,6 +356,7 @@ Model::get_all_moves()
             }
         }
     }
+	
     return moves;
 }
 
@@ -500,7 +501,7 @@ Model::get_castling_moves(int Krow, int Kcol, std::vector<Move>& moves)
 {
 
     // TODO: add castling ot other side and add castling move to Move
-    if (square_attacked(loc{Krow,Kcol}))
+    if (in_check_)
     {
         return;
     }
@@ -573,16 +574,16 @@ Model::pawn_moves(int row, int col, std::vector<Move>& moves)
 
     if (board_[row + move_amount][col] == "--") {
         if (!is_pinned || pin_dir.eq(move_amount, 0)) {
-            moves.push_back(Move(loc{ row,col }, loc{ row + move_amount, col }, board_));
+            moves.emplace_back(loc{ row,col }, loc{ row + move_amount, col }, board_);
             if (row == start_row && board_[row + 2 * move_amount][col] == "--") {
-                moves.push_back(Move(loc{ row,col }, loc{ row + 2*move_amount, col }, board_));
+                moves.emplace_back(loc{ row,col }, loc{ row + 2*move_amount, col }, board_);
             }
         }
     }
     if (col - 1 >= 0) {
         if (!is_pinned || pin_dir.eq(move_amount, -1)) {
             if (board_[row + move_amount][col - 1][0] == enemy_color) {
-                moves.push_back(Move(loc{ row,col }, loc{ row + move_amount, col - 1}, board_));
+                moves.emplace_back(loc{ row,col }, loc{ row + move_amount, col - 1}, board_);
             }
             if (enpassant_.eq(row + move_amount, col - 1)) {
 				bool attacking = false, blocking = false;
@@ -612,7 +613,7 @@ Model::pawn_moves(int row, int col, std::vector<Move>& moves)
                     }
                 }
                 if (!attacking || blocking) {
-                    moves.push_back(Move(loc{ row,col }, loc{ row + move_amount, col - 1}, board_, true, false));
+                    moves.emplace_back(loc{ row,col }, loc{ row + move_amount, col - 1}, board_, true, false);
                 }
 				
             }
@@ -963,7 +964,7 @@ Model::score_the_board() const
     {
         for (int c = 0; c < 8; c++)
         {
-            std::string piece = board_[r][c];
+            const std::string& piece = board_[r][c];
             if (piece[0] == 'w')
             {
                 // value of piece
@@ -1057,7 +1058,7 @@ Model::best_move()
     //https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning
     count_ = 0;
     // leave depth on three a weird bug arises when its on an even number
-    depth_ = 3;
+    depth_ = 5;
     int turn_multi;
 
     // allows best_move to be used for white too

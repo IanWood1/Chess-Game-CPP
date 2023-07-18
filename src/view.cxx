@@ -1,5 +1,6 @@
 
 #include "view.hxx"
+#include <thread>
 #include <map>
 
 static ge211::Color const grey {140,140,140};
@@ -213,16 +214,27 @@ View::draw(ge211::Sprite_set& set)
     }
 
     // "ai" makes a move
+    if (aiThreadReady_ || aiThread_.joinable()) {
+        if (aiThread_.joinable())
+        {
+            aiThread_.join();
+            board_ = aiBoard_;
+            aiBoard_ = board_;
+            aiThreadReady_ = true;
+            board_.make_move(board_.best_move_);
+        }
+        else {
+            // init aiBoard_
+            aiBoard_ = board_;
+        }
+
+    }
+	
     if (board_.turn() == 'b' && !two_player)
     {
-        if (time_ != 10)
-        {
-            time_++;
+        if (!aiThreadReady_)
             return;
-        }
-        time_ = 0;
-        board_.best_move();
-        board_.make_move(board_.best_move_);
+        aiThread_ = std::thread([this] {aiBoard_.best_move();});
     }
 
 
