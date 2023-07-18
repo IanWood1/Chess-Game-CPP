@@ -225,76 +225,87 @@ Model::get_valid_moves()
 {
     loc save_enpassant = enpassant_;
     castling save_castling = castling(castling_rights_);
-    std::vector<Move> moves = get_all_moves();
-    // TODO: implement castling here
-    if(turn_ == 'w')
-    {
-        get_castling_moves(white_king_.row,white_king_.col,moves);
-    }
-    else
-    {
-        get_castling_moves(black_king_.row,black_king_.col,moves);
+    auto pins_and_checks = get_pins_and_checks();
+    pins_ = pins_and_checks.first;
+    checks_ = pins_and_checks.second;
+    in_check_ = !checks_.empty();
 
-    }
-    if (moves.empty())
-    {
-        return moves;
-    }
-    for (std::vector<Move>::iterator i = moves.begin();
-        i != moves.end();)
-    {
-        make_move(*i);
-        if (turn_ == 'w'){
-            turn_ = 'b';
-        }else{
-            turn_ = 'w';
-        }
-
-        if (in_check())
-        {
-            i = moves.erase(i);
-        }else {
-            i++;
-        }
-
-        if (turn_ == 'w'){
-            turn_ = 'b';
-        }else{
-            turn_ = 'w';
-        }
-        undo_move();
-
-        if (moves.size() == 0)
-        {
-            if (in_check())
-            {
-                checkmate_ = true;
+    std::vector<Move> moves;
+    const loc& king_loc = turn_ == 'w' ? white_king_ : black_king_;
+    if (in_check_) {
+        if (checks_.size() == 1) {
+            moves = get_all_moves();
+            const loc& check_loc = checks_[0].first;
+            const dir& check_dir = checks_[0].second;
+            const std::string& check_piece = board_[check_loc.row][check_loc.col];
+            std::vector<loc> valid_squares;
+            if (check_piece[1] == 'N') {
+                valid_squares.push_back(check_loc);
             }
-            else
-            {
-                stalemate_ = true;
-            }
-        }
-        else
-        {
-            checkmate_ = false;
-            stalemate_ = true;
-            for (auto& row : board_)
-            {
-                for (auto& piece : row)
-                {
-                    if (piece[1] != '-'
-                        && piece[1] != 'K')
-                    {
-                        stalemate_ = false;
+            else {
+                for (int i = 0; i < 8; i++) {
+                    valid_squares.push_back({
+                        king_loc.row + check_dir.y * i,
+                        king_loc.col + check_dir.x * i });
+                    if (valid_squares.back().row == check_loc.row && valid_squares.back().col == check_loc.row) {
+                        break;
                     }
+                }		
+            }
+            for (auto it = moves.begin(); it != moves.end();) {
+                const Move& move = *it;
+                if (move.piece_moved[1] != 'K') {
+                    bool found = false;
+                    for (loc& square : valid_squares) {
+                        if (square.eq(move.end.row, move.end.col)) {
+                            found = true;
+                        }
+                    }
+                    if (!found)
+                        it = moves.erase(it);
+                    else
+                        it++;
+                }
+                else {
+                    it++;
                 }
             }
         }
-
+        else {
+            // double check -> can only move king
+            king_moves(king_loc.row, king_loc.col, moves);
+        }
+    }
+    else {
+		// no checks; all moves work!
+        moves = get_all_moves();
+        get_castling_moves(king_loc.row, king_loc.col, moves);	
     }
 
-
+    if (moves.empty()) {
+        if (in_check()) {
+            checkmate_ = true;
+        }
+        else {
+            stalemate_ = true;
+        }
+    }
+    else
+    {
+        checkmate_ = false;
+        stalemate_ = true;
+        for (auto& row : board_)
+        {
+            for (auto& piece : row)
+            {
+                if (piece[1] != '-'
+                    && piece[1] != 'K')
+                {
+                    stalemate_ = false;
+                }
+            }
+        }
+    }
 
     enpassant_ = save_enpassant;
     castling_rights_ = save_castling;
@@ -346,6 +357,88 @@ Model::get_all_moves()
         }
     }
     return moves;
+}
+
+std::pair<std::vector<std::pair<loc, dir>>, std::vector<std::pair<loc, dir>>> 
+Model::get_pins_and_checks()
+{
+    using piece_dir_t = std::pair<loc, dir>;
+    std::vector<piece_dir_t> checks;
+    std::vector<piece_dir_t> pins;
+	
+    bool in_check = false;
+	
+    const char enemy_color = turn_ == 'w' ? 'b' : 'w';
+    const char my_color = turn_;
+    const loc king_loc = turn_ == 'w' ? white_king_ : black_king_;
+
+	// check for pins/checks outwards from king loc
+    const std::vector<dir> directions = { {-1, 0}, {0, -1}, {1, 0}, {0, 1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 1} };
+    for (int i = 0; i < directions.size(); i++) {
+        dir curr_dir = directions[i];
+        piece_dir_t possible_pin;
+        bool found_possible_pin = false;
+
+        for (int dist = 1; dist < 8; dist++) {
+            loc curr_square = { king_loc.row + curr_dir.y * dist, king_loc.col + curr_dir.x * dist };
+            if (curr_square.on_board()) {
+                std::string& end_piece = board_[curr_square.row][curr_square.col];
+                if (end_piece[0] == my_color && end_piece[1] != 'K') {
+                    if (!found_possible_pin) {
+                        possible_pin = { curr_square, curr_dir };
+                        found_possible_pin = true;
+                    }
+                    else {
+                        break; // no further pins/checks from this direction
+                    }
+                }
+                else if (end_piece[0] == enemy_color) {
+                    char enemy_type = end_piece[1];
+                    if (
+                        (i >= 0 && i <= 3 && enemy_type == 'R') ||
+                        (i >= 4 && i <= 7 && enemy_type == 'B') ||
+                        ((dist == 1 && enemy_type == 'p') && 
+                            (
+                                (enemy_color == 'w'  && (i == 5 || i == 7)) ||
+                                (enemy_color == 'b' && (i == 6 || i == 4))
+                                )
+                            ) ||
+                        (enemy_type == 'Q') ||
+                        (dist == 1 && enemy_type == 'K')
+                        ) {
+                        if (!found_possible_pin) {
+                            in_check = true;
+                            checks.emplace_back(curr_square, curr_dir);
+                            break;
+                        }
+                        else {
+                            pins.push_back(std::move(possible_pin));
+                            break;
+                        }
+                    }
+                    else {
+                        break;
+                    }
+                }
+            }
+            else {
+                break;
+            }
+        }
+    }
+    const std::vector<dir> knight_moves = { {-2, -1}, {-2, 1}, {-1, 2}, {1, 2}, {2, -1}, {2, 1}, {-1, -2}, {1, -2} };
+    for (dir curr_dir : knight_moves) {
+        loc curr_square = { king_loc.row + curr_dir.y, king_loc.col + curr_dir.x };
+        if (curr_square.on_board()) {
+            std::string& end_piece = board_[curr_square.row][curr_square.col];
+            if (end_piece[0] == enemy_color && end_piece[1] == 'N') {
+                in_check = true;
+                checks.emplace_back(curr_square, curr_dir);
+            }
+        }
+    }
+
+    return { pins, checks };
 }
 
 bool
@@ -449,99 +542,118 @@ Model::get_castling_moves(int Krow, int Kcol, std::vector<Move>& moves)
 void
 Model::pawn_moves(int row, int col, std::vector<Move>& moves)
 {
-    //TODO: doesnt handle enpassant by adding it to the move
-    if (turn_ == 'w'){
-        if (row > 0 && board_[row - 1][col] == "--"){
-            // one square move
-            moves.push_back(Move(
-                    loc{row,col},
-                    loc{row-1,col},
-                    board()));
-            if (row == 6 && board_[row-2][col] == "--"){
-                // two square move
-                moves.push_back(Move(
-                        loc{row,col},
-                        loc{row-2,col},
-                        board()));
+    bool is_pinned = false;
+    dir pin_dir;
+    for (auto it = pins_.begin(); it != pins_.end(); it++) {
+        loc& square = (*it).first;
+        if (square.row == row && square.col == col) {
+            is_pinned = true;
+            pin_dir = (*it).second;
+            pins_.erase(it);
+            break;
+        }
+    }
+
+    int move_amount;
+    int start_row;
+    char enemy_color;
+    loc king_loc = white_king_;
+    if (turn_ == 'w') {
+        move_amount = -1;
+        start_row = 6;
+        enemy_color = 'b';
+        king_loc = white_king_;
+    }
+    else {
+        move_amount = 1;
+        start_row = 1;
+        enemy_color = 'w';
+        king_loc = black_king_;
+    }
+
+    if (board_[row + move_amount][col] == "--") {
+        if (!is_pinned || pin_dir.eq(move_amount, 0)) {
+            moves.push_back(Move(loc{ row,col }, loc{ row + move_amount, col }, board_));
+            if (row == start_row && board_[row + 2 * move_amount][col] == "--") {
+                moves.push_back(Move(loc{ row,col }, loc{ row + 2*move_amount, col }, board_));
             }
         }
-        if (col - 1 >= 0 && row > 0){
-            if (board_[row-1][col-1][0] == 'b') {
-                moves.push_back(Move(
-                        loc{row,col},
-                        loc{row-1,col-1},
-                        board()));
-            }else if (row - 1 == enpassant_.row && col - 1 == enpassant_.col) {
-                moves.push_back(Move(
-                        loc {row, col},
-                        loc {row-1, col-1},
-                        board(),
-                        true,
-                        false));
+    }
+    if (col - 1 >= 0) {
+        if (!is_pinned || pin_dir.eq(move_amount, -1)) {
+            if (board_[row + move_amount][col - 1][0] == enemy_color) {
+                moves.push_back(Move(loc{ row,col }, loc{ row + move_amount, col - 1}, board_));
+            }
+            if (enpassant_.eq(row + move_amount, col - 1)) {
+				bool attacking = false, blocking = false;
+                if (king_loc.row == row) {
+                    std::tuple<int, int, int> inside, outside;
+                    if (king_loc.col < col) { // king is on the left of the pawn
+                        inside = std::make_tuple(king_loc.col + 1, col - 1, 1);
+                        outside = std::make_tuple( col + 1, 8, 1);
+                    }
+                    else {
+                        inside = std::make_tuple(king_loc.col - 1, col - 1, -1);
+                        outside = std::make_tuple(col - 2, -1, -1);
+                    }
+                    for (int i = std::get<0>(inside); i != std::get<1>(inside); i += std::get<2>(inside)) {
+                        if (board_[row][i] != "--") {
+                            blocking = true;
+                        }
+                    }
+                    for (int i = std::get<0>(outside); i != std::get<1>(outside); i += std::get<2>(outside)) {
+                        const std::string& piece = board_[row][i];
+                        if (piece[0] == enemy_color && (piece[1] == 'R' || piece[1] == 'Q')) {
+                            attacking = true;
+                        }
+                        else if (piece == "--") {
+                            blocking = true;
+                        }
+                    }
+                }
+                if (!attacking || blocking) {
+                    moves.push_back(Move(loc{ row,col }, loc{ row + move_amount, col - 1}, board_, true, false));
+                }
+				
             }
         }
-        if (col + 1 <=7 && row > 0){
-            if(board_[row-1][col+1][0] == 'b'){
-                moves.push_back(Move(
-                        loc {row, col},
-                        loc {row - 1, col + 1},
-                        board()));
-            }else if (row - 1 == enpassant_.row && col + 1 == enpassant_.col){
-                moves.push_back(Move(
-                        loc {row, col},
-                        loc {row-1, col+1},
-                        board(),
-                        true,
-                        false));
+    }
+    if (col + 1 <= 7) {
+        if (!is_pinned || pin_dir.eq(move_amount, 1)) {
+            if (board_[row + move_amount][col + 1][0] == enemy_color) {
+                moves.push_back(Move(loc{ row,col }, loc{ row + move_amount, col + 1 }, board_));
             }
-        }
-    } else {
-        if (row + 1 < 8 && board_[row+1][col] == "--")
-        {
-            moves.push_back(Move(
-                    loc{row,col},
-                    loc{row+1,col},
-                    board()));
-            if (row == 1 && board_[row+2][col] == "--")
-            {
-                moves.push_back(Move(
-                        loc{row,col},
-                        loc{row+2,col},
-                        board()));
-            }
-        }
-        if (col - 1 >= 0 && row + 1 < 8)
-        {
-            if (board_[row+1][col-1][0] == 'w')
-            {
-                moves.push_back(Move(
-                        loc{row,col},
-                        loc{row+1,col-1},
-                        board()));
-            }
-            else if (row + 1 == enpassant_.row && col - 1 == enpassant_.col)
-            {
-                moves.push_back(Move(
-                        loc{row,col},
-                        loc{row+1,col-1},
-                        board(),
-                        true,
-                        false));
-            }
-        }
-        if (col + 1 <= 7 && row + 1 < 8) {
-            if (board_[row + 1][col + 1][0] == 'w') {
-                moves.push_back(Move(
-                        loc {row, col},
-                        loc {row + 1, col + 1},
-                        board()));
-            } else if (row + 1 == enpassant_.row && col + 1 == enpassant_.col) {
-                moves.push_back(Move(
-                        loc {row, col},
-                        loc {row + 1, col + 1},
-                        board(),
-                        true,
-                        false));
+            if (enpassant_.eq(row + move_amount, col + 1)) {
+                bool attacking = false, blocking = false;
+                if (king_loc.row == row) {
+                    std::tuple<int, int, int> inside, outside;
+                    if (king_loc.col < col) { // king is on the left of the pawn
+                        inside = std::make_tuple(king_loc.col + 1, col, 1);
+                        outside = std::make_tuple(col + 2, 8, 1);
+                    }
+                    else {
+                        inside = std::make_tuple(king_loc.col - 1, col + 1, -1);
+                        outside = std::make_tuple(col - 1, -1, -1);
+                    }
+                    for (int i = std::get<0>(inside); i != std::get<1>(inside); i += std::get<2>(inside)) {
+                        if (board_[row][i] != "--") {
+                            blocking = true;
+                        }
+                    }
+                    for (int i = std::get<0>(outside); i != std::get<1>(outside); i += std::get<2>(outside)) {
+                        const std::string& piece = board_[row][i];
+                        if (piece[0] == enemy_color && (piece[1] == 'R' || piece[1] == 'Q')) {
+                            attacking = true;
+                        }
+                        else if (piece == "--") {
+                            blocking = true;
+                        }
+                    }
+                }
+                if (!attacking || blocking) {
+                    moves.push_back(Move(loc{ row,col }, loc{ row + move_amount, col + 1 }, board_, true, false));
+                }
+
             }
         }
     }
@@ -551,10 +663,25 @@ Model::pawn_moves(int row, int col, std::vector<Move>& moves)
 void
 Model::knight_moves(int row, int col, std::vector<Move>& moves)
 {
-    std::vector<loc> directions;
-    directions = {loc{-2,-1},loc{-2,1},loc{-1,-2},
-                  loc{-1,2},loc{1,-2},loc{1,2},
-                  loc{2,-1},loc{2,1}};
+    bool is_pinned = false;
+    dir pin_dir;
+    for (auto it = pins_.begin(); it != pins_.end(); it++) {
+        loc& square = (*it).first;
+        if (square.row == row && square.col == col) {
+            is_pinned = true;
+            pin_dir = (*it).second;
+            pins_.erase(it);
+            break;
+        }
+    }
+    if (is_pinned) {
+        return; // cant make a move if knight is pinned
+    }
+	
+    std::vector<loc> directions 
+        = {loc{-2,-1},loc{-2,1},loc{-1,-2}, loc{-1,2},loc{1,-2},loc{1,2}, loc{2,-1},loc{2,1}};
+	
+	
     char curr_color = 'w';
     if (turn_ == 'b'){
         curr_color = 'b';
@@ -582,8 +709,19 @@ Model::knight_moves(int row, int col, std::vector<Move>& moves)
 void
 Model::bishop_moves(int row, int col, std::vector<Move>& moves)
 {
-    std::vector<loc> directions;
-    directions = {loc{1,1},loc{-1,1},loc{1,-1},loc{-1,-1}};
+    bool is_pinned = false;
+    dir pin_dir;
+    for (auto it = pins_.begin(); it != pins_.end(); it++) {
+        loc& square = (*it).first;
+        if (square.row == row && square.col == col) {
+            is_pinned = true;
+            pin_dir = (*it).second;
+            pins_.erase(it);
+            break;
+        }
+    }
+	
+    std::vector<dir> directions = { {1,1},{-1,1},{1,-1},{-1,-1} };
     char other_color = 'w';
     if (turn_ == 'w'){
         other_color = 'b';
@@ -592,10 +730,13 @@ Model::bishop_moves(int row, int col, std::vector<Move>& moves)
     {
         for (int i = 1; i < 8; i++)
         {
-            int end_row = row + direction.row * i;
-            int end_col = col + direction.col * i;
-            if (0 <= end_col  && end_col < 8
-                && 0 <= end_row && end_row < 8)
+            int end_row = row + direction.y * i;
+            int end_col = col + direction.x * i;
+            if (
+                (0 <= end_col  && end_col < 8 && 0 <= end_row && end_row < 8) &&
+				(!is_pinned || pin_dir.eq(direction.x, direction.y) 
+                    || pin_dir.eq(-1*direction.x, -1*direction.y))
+                )
             {
                 char prefix_piece_to = board_[end_row][end_col][0];
                 if (prefix_piece_to == '-')
@@ -626,8 +767,22 @@ Model::bishop_moves(int row, int col, std::vector<Move>& moves)
 void
 Model::rook_moves(int row, int col, std::vector<Move>& moves)
 {
-    std::vector<loc> directions;
-    directions = {loc{1,0},loc{-1,0},loc{0,-1},loc{0,1}};
+    bool is_pinned = false;
+    dir pin_dir;
+    for (auto it = pins_.begin(); it != pins_.end(); it++) {
+        loc& square = (*it).first;
+        if (square.row == row && square.col == col) {
+            is_pinned = true;
+            pin_dir = (*it).second;
+			if(board_[row][col][1] != 'Q')
+                pins_.erase(it); // only remove on bishop moves if queen
+				
+            break;
+        }
+    }
+
+	
+    std::vector<dir> directions = { {1,0}, {-1,0}, {0,-1}, {0,1} };
     char other_color = 'w';
     if (turn_ == 'w'){
         other_color = 'b';
@@ -636,10 +791,12 @@ Model::rook_moves(int row, int col, std::vector<Move>& moves)
     {
         for (int i = 1; i < 8; i++)
         {
-            int end_row = row + direction.row * i;
-            int end_col = col + direction.col * i;
-            if (0 <= end_col  && end_col < 8
-                && 0 <= end_row && end_row < 8)
+            int end_row = row + direction.y * i;
+            int end_col = col + direction.x * i;
+            if ((0 <= end_col  && end_col < 8&& 0 <= end_row && end_row < 8) 
+                && (!is_pinned || pin_dir.eq(direction.x, direction.y)
+                    || pin_dir.eq(-1 * direction.x, -1 * direction.y))
+                )
             {
                 char prefix_piece_to = board_[end_row][end_col][0];
                 if (prefix_piece_to == '-')
@@ -678,8 +835,8 @@ void
 Model::king_moves(int row, int col, std::vector<Move>& moves)
 {
     std::vector<loc> directions;
-    directions = {loc{1,1},loc{-1,1},loc{1,-1},loc{-1,-1},
-                  loc{1,0},loc{-1,0},loc{0,-1},loc{0,1}};
+    directions = { loc{1,1},loc{-1,1},loc{1,-1},loc{-1,-1},
+                  loc{1,0},loc{-1,0},loc{0,-1},loc{0,1} };
     char curr_color = 'w';
     if (turn_ == 'b'){
         curr_color = 'b';
@@ -692,10 +849,27 @@ Model::king_moves(int row, int col, std::vector<Move>& moves)
             && 0 <= end_row && end_row < 8
             && board_[end_row][end_col][0] != curr_color)
         {
-            moves.push_back(Move(
-                    loc{row,col},
-                    loc{end_row,end_col},
+            if (curr_color == 'w') {
+                white_king_ = { end_row, end_col };
+            }
+            else {
+                black_king_ = { end_row, end_col };
+            }
+
+            auto pins_and_checks = get_pins_and_checks();
+            if (pins_and_checks.second.empty()) {
+                moves.push_back(Move(
+                    loc{ row,col },
+                    loc{ end_row,end_col },
                     board()));
+            }
+
+            if (curr_color == 'w') {
+                white_king_ = { row,col };
+            }
+            else {
+                black_king_ = { row, col };
+            }
         }
     }
 }

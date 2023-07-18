@@ -117,6 +117,9 @@ private:
 
     std::vector<Move> get_all_moves();
 
+    std::pair<std::vector<std::pair<loc, dir>>, std::vector<std::pair<loc, dir>>>
+        get_pins_and_checks();
+
 
 
     bool in_check();
@@ -156,6 +159,9 @@ private:
     loc enpassant_ = loc{-1,-1};
     bool checkmate_ = false;
     bool stalemate_ = false;
+    bool in_check_ = false;
+    std::vector<std::pair<loc, dir>> pins_;
+    std::vector<std::pair<loc, dir>> checks_;
     char turn_ = 'w';
     char winner_ = 0;
     int depth_ = 0;

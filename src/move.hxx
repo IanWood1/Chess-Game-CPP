@@ -6,6 +6,24 @@ struct loc
 {
     int row;
     int col;
+
+    constexpr bool eq(int otherr, int otherc) {
+        return otherr == row && otherc == col;
+    }
+
+    constexpr bool on_board() {
+        return row >= 0 && row < 8 && col >= 0 && col < 8;
+    }
+};
+
+struct dir
+{
+    int x = 0;
+    int y = 0;
+	
+    constexpr bool eq(int otherx, int othery) {
+        return x == otherx && y == othery;
+    }
 };
 using board_array_t = std::array<std::array<std::string,8>,8>;
 
