@@ -6,7 +6,12 @@
 #include <iostream>
 #include <optional>
 #include "move.hxx"
-using board_array_t = std::array<std::array<std::string,8>,8>;
+
+
+using board_elem_t = std::string;
+using board_row_t = std::array<board_elem_t, 8>;
+using board_array_t = std::array<board_row_t, 8>;
+
 
 // structs for important parts about the game
 
@@ -24,12 +29,12 @@ public:
 
     Model();
 
-    Model(std::array<std::array<std::string, 8>, 8>);
+    Model(board_array_t);
 
     void print_board() const;
     void print_board_array() const;
 
-    std::array<std::array<std::string,8>,8> board_;
+    board_array_t board_;
     int score_the_board() const;
     int piece_score(char) const;
     void best_move();
@@ -58,53 +63,52 @@ public:
 
     void undo_move();
 
-    using board_array_t = std::array<std::array<std::string,8>,8>;
 
     int count_ = 0;
 
     /*
     board_array_t board_ = board_array_t {
-            std::array<std::string,8>{"bR", "bN","bB","bQ","bK","bB","bN","bR"},
-            std::array<std::string,8>{"bp","bp","bp","bp","bp","bp","bp","bp"},
-            std::array<std::string,8>{"--","--","--","--","--","--","--","--",},
-            std::array<std::string,8>{"--","--","--","--","--","--","--","--",},
-            std::array<std::string,8>{"--","--","--","--","--","--","--","--",},
-            std::array<std::string,8>{"--","--","--","--","--","--","--","--",},
-            std::array<std::string,8>{"wp","wp","wp","wp","wp","wp","wp","wp",},
-            std::array<std::string,8>{"wR", "wN","wB","wQ","wK","wB","wN","wR"}};
+            board_row_t{"bR", "bN","bB","bQ","bK","bB","bN","bR"},
+            board_row_t{"bp","bp","bp","bp","bp","bp","bp","bp"},
+            board_row_t{"--","--","--","--","--","--","--","--",},
+            board_row_t{"--","--","--","--","--","--","--","--",},
+            board_row_t{"--","--","--","--","--","--","--","--",},
+            board_row_t{"--","--","--","--","--","--","--","--",},
+            board_row_t{"wp","wp","wp","wp","wp","wp","wp","wp",},
+            board_row_t{"wR", "wN","wB","wQ","wK","wB","wN","wR"}};
     */
     /*
     board_array_t board_ = board_array_t {
-            std::array<std::string,8>{"bR", "bN","bB","bQ","bK","bB","bN","bR"},
-            std::array<std::string,8>{"bp","bp","bp","bp","bp","bp","bp","bp"},
-            std::array<std::string,8>{"--","--","--","--","--","--","--","--",},
-            std::array<std::string,8>{"--","--","--","--","--","--","--","--",},
-            std::array<std::string,8>{"--","--","--","--","--","--","--","--",},
-            std::array<std::string,8>{"--","--","--","--","--","--","--","--",},
-            std::array<std::string,8>{"--","--","--","--","--","--","--","--",},
-            std::array<std::string,8>{"wR", "wN","wB","wQ","wK","wB","wN","wR"}};
+            board_row_t{"bR", "bN","bB","bQ","bK","bB","bN","bR"},
+            board_row_t{"bp","bp","bp","bp","bp","bp","bp","bp"},
+            board_row_t{"--","--","--","--","--","--","--","--",},
+            board_row_t{"--","--","--","--","--","--","--","--",},
+            board_row_t{"--","--","--","--","--","--","--","--",},
+            board_row_t{"--","--","--","--","--","--","--","--",},
+            board_row_t{"--","--","--","--","--","--","--","--",},
+            board_row_t{"wR", "wN","wB","wQ","wK","wB","wN","wR"}};
     */
     /*
     board_array_t board_ = board_array_t {
-            std::array<std::string,8>{"--", "--","--","--","bK","--","--","--"},
-            std::array<std::string,8>{"bp","--","--","--","bR","bR","--","--"},
-            std::array<std::string,8>{"--","--","--","--","--","--","bB","--"},
-            std::array<std::string,8>{"--","--","--","--","--","--","--","--"},
-            std::array<std::string,8>{"bQ","--","--","--","--","--","--","--"},
-            std::array<std::string,8>{"--","--","--","--","--","--","--","--"},
-            std::array<std::string,8>{"wp","--","--","--","--","--","--","--"},
-            std::array<std::string,8>{"--","--","--","--","wK","--","--","--"}};
+            board_row_t{"--", "--","--","--","bK","--","--","--"},
+            board_row_t{"bp","--","--","--","bR","bR","--","--"},
+            board_row_t{"--","--","--","--","--","--","bB","--"},
+            board_row_t{"--","--","--","--","--","--","--","--"},
+            board_row_t{"bQ","--","--","--","--","--","--","--"},
+            board_row_t{"--","--","--","--","--","--","--","--"},
+            board_row_t{"wp","--","--","--","--","--","--","--"},
+            board_row_t{"--","--","--","--","wK","--","--","--"}};
     */
 /*
     board_array_t board_ = board_array_t {
-            std::array<std::string,8>{"bR", "--","--","--","bK","--","--","bR"},
-            std::array<std::string,8>{"--","--","--","--","--","--","--","--"},
-            std::array<std::string,8>{"--","--","--","--","--","--","--","--"},
-            std::array<std::string,8>{"--","--","--","--","--","--","--","--"},
-            std::array<std::string,8>{"--","--","--","--","--","--","--","--"},
-            std::array<std::string,8>{"--","--","--","--","--","--","--","--"},
-            std::array<std::string,8>{"--","--","--","--","--","--","--","--"},
-            std::array<std::string,8>{"wR","--","--","--","wK","--","--","wR"}};
+            board_row_t{"bR", "--","--","--","bK","--","--","bR"},
+            board_row_t{"--","--","--","--","--","--","--","--"},
+            board_row_t{"--","--","--","--","--","--","--","--"},
+            board_row_t{"--","--","--","--","--","--","--","--"},
+            board_row_t{"--","--","--","--","--","--","--","--"},
+            board_row_t{"--","--","--","--","--","--","--","--"},
+            board_row_t{"--","--","--","--","--","--","--","--"},
+            board_row_t{"wR","--","--","--","wK","--","--","wR"}};
 */
      Move best_move_ = Move(loc{},loc{},board_);
     std::vector<Move> move_log_ = std::vector<Move>{};

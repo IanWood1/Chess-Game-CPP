@@ -1,23 +1,23 @@
 #include "model.hxx"
 
-using board_array_t = std::array<std::array<std::string,8>,8>;
-
-
 
 Model::Model()
 {
+    std::cout << sizeof(board_array_t) << std::endl;
+    std::cout << sizeof(board_row_t) << std::endl;
+    std::cout << sizeof(board_elem_t) << std::endl;
     board_ = board_array_t {
-            std::array<std::string,8>{"bR", "bN","bB","bQ","bK","bB","bN","bR"},
-            std::array<std::string,8>{"bp","bp","bp","bp","bp","bp","bp","bp"},
-            std::array<std::string,8>{"--","--","--","--","--","--","--","--",},
-            std::array<std::string,8>{"--","--","--","--","--","--","--","--",},
-            std::array<std::string,8>{"--","--","--","--","--","--","--","--",},
-            std::array<std::string,8>{"--","--","--","--","--","--","--","--",},
-            std::array<std::string,8>{"wp","wp","wp","wp","wp","wp","wp","wp",},
-            std::array<std::string,8>{"wR", "wN","wB","wQ","wK","wB","wN","wR"}};
+            board_row_t{"bR", "bN","bB","bQ","bK","bB","bN","bR"},
+            board_row_t{"bp","bp","bp","bp","bp","bp","bp","bp"},
+            board_row_t{"--","--","--","--","--","--","--","--",},
+            board_row_t{"--","--","--","--","--","--","--","--",},
+            board_row_t{"--","--","--","--","--","--","--","--",},
+            board_row_t{"--","--","--","--","--","--","--","--",},
+            board_row_t{"wp","wp","wp","wp","wp","wp","wp","wp",},
+            board_row_t{"wR", "wN","wB","wQ","wK","wB","wN","wR"}};
 }
 
-Model::Model(std::array<std::array<std::string, 8>, 8> input_board)
+Model::Model(board_array_t input_board)
 {
     board_ = input_board;
 }
@@ -237,7 +237,7 @@ Model::get_valid_moves()
             moves = get_all_moves();
             const loc& check_loc = checks_[0].first;
             const dir& check_dir = checks_[0].second;
-            const std::string& check_piece = board_[check_loc.row][check_loc.col];
+            const board_elem_t& check_piece = board_[check_loc.row][check_loc.col];
             std::vector<loc> valid_squares;
             if (check_piece[1] == 'N') {
                 valid_squares.push_back(check_loc);
@@ -383,7 +383,7 @@ Model::get_pins_and_checks()
         for (int dist = 1; dist < 8; dist++) {
             loc curr_square = { king_loc.row + curr_dir.y * dist, king_loc.col + curr_dir.x * dist };
             if (curr_square.on_board()) {
-                std::string& end_piece = board_[curr_square.row][curr_square.col];
+                board_elem_t& end_piece = board_[curr_square.row][curr_square.col];
                 if (end_piece[0] == my_color && end_piece[1] != 'K') {
                     if (!found_possible_pin) {
                         possible_pin = { curr_square, curr_dir };
@@ -431,7 +431,7 @@ Model::get_pins_and_checks()
     for (dir curr_dir : knight_moves) {
         loc curr_square = { king_loc.row + curr_dir.y, king_loc.col + curr_dir.x };
         if (curr_square.on_board()) {
-            std::string& end_piece = board_[curr_square.row][curr_square.col];
+            board_elem_t& end_piece = board_[curr_square.row][curr_square.col];
             if (end_piece[0] == enemy_color && end_piece[1] == 'N') {
                 in_check = true;
                 checks.emplace_back(curr_square, curr_dir);
@@ -603,7 +603,7 @@ Model::pawn_moves(int row, int col, std::vector<Move>& moves)
                         }
                     }
                     for (int i = std::get<0>(outside); i != std::get<1>(outside); i += std::get<2>(outside)) {
-                        const std::string& piece = board_[row][i];
+                        const board_elem_t& piece = board_[row][i];
                         if (piece[0] == enemy_color && (piece[1] == 'R' || piece[1] == 'Q')) {
                             attacking = true;
                         }
@@ -642,7 +642,7 @@ Model::pawn_moves(int row, int col, std::vector<Move>& moves)
                         }
                     }
                     for (int i = std::get<0>(outside); i != std::get<1>(outside); i += std::get<2>(outside)) {
-                        const std::string& piece = board_[row][i];
+                        const board_elem_t& piece = board_[row][i];
                         if (piece[0] == enemy_color && (piece[1] == 'R' || piece[1] == 'Q')) {
                             attacking = true;
                         }
@@ -928,15 +928,15 @@ Model::piece_score(char piece) const
     if (piece == 'K'){
         return 0;
     }else if (piece == 'Q'){
-        return 90;
+        return 900;
     }else if (piece == 'R'){
-        return 50;
+        return 500;
     }else if (piece == 'B'){
-        return 30;
+        return 350;
     }else if (piece == 'N'){
-        return 30;
+        return 300;
     }else{
-        return 10;
+        return 100;
     }
 }
 
@@ -947,11 +947,11 @@ Model::score_the_board() const
     {
         if (turn_ == 'w')
         {
-            return 10000;
+            return 100000000;
         }
         else
         {
-            return -10000;
+            return -100000000;
         }
     }
     else if (stalemate_)
@@ -964,7 +964,7 @@ Model::score_the_board() const
     {
         for (int c = 0; c < 8; c++)
         {
-            const std::string& piece = board_[r][c];
+            const board_elem_t& piece = board_[r][c];
             if (piece[0] == 'w')
             {
                 // value of piece
@@ -1072,11 +1072,12 @@ Model::best_move()
     std::sort(valid_moves.begin(), valid_moves.end(), compare);
     best_move_ = valid_moves.at(0);
 
-    best_move_helper(valid_moves,
-                           depth_,
-                           -10000,
-                           10000,
-                           turn_multi);
+    int score = best_move_helper(valid_moves,
+        depth_,
+        -100000,
+        100000,
+        turn_multi);
+    std::cout << "the board was scored: " << static_cast<float>(- 1 * score ) / 100<< std::endl;
 }
 
 int
@@ -1100,6 +1101,7 @@ Model::best_move_helper(const std::vector<Move>& valid_moves,
     {
         make_move(move);
         std::vector<Move> next_moves = get_valid_moves();
+        //std::sort(next_moves.begin(), next_moves.end(), compare);
         int score = -best_move_helper(next_moves,
                                       depth - 1,
                                       -beta,
